@@ -12,7 +12,13 @@
 | Compilation avec projet/préfixe différents et filtre France | Réussie dans les tests |
 | Audit npm à l'installation | **0 vulnérabilité signalée** dans les dépendances verrouillées à cette date |
 
-Environnement local : macOS, Node.js **26.8.1**, npm **11.19.0**, Dataform CLI **3.1.2**, Dataform Core **3.0.0**. Le workflow CI cible Node.js 22, mais n'a pas encore été exécuté sur GitHub.
+Environnement local : macOS, Node.js **26.8.1**, npm **11.19.0**, Dataform CLI **3.1.2**, Dataform Core **3.0.0**.
+
+## Validation sur GitHub
+
+Le workflow **Offline validation** a réussi sur GitHub avec **Node.js 22** le 23 octobre 2026 : installation avec `npm ci`, 9 tests Node, 4 tests Python et vérification syntaxique Python. [Consulter l'exécution sur le commit publié](https://github.com/MididouNueve/dataform-bigquery-quality/actions/runs/39969164194).
+
+Ces tests automatiques ne se connectent pas à BigQuery.
 
 Le CLI 3.0.68 initialement repris avait des dépendances signalées par l'audit npm. La mise à jour du CLI vers 3.1.2 les a résolues sans imposer d'override des dépendances transitives ; les tests ont été relancés sur cette version. Un audit sans alerte n'est pas une garantie d'absence de vulnérabilité.
 
