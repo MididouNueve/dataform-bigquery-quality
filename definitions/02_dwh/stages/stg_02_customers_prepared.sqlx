@@ -1,0 +1,30 @@
+config {
+  type: "table",
+  database: constants.PROJECT_ID,
+  schema: constants.SCHEMAS.STAGE,
+  description: "Snapshot source complet ; identité client stable et périmètre explicite",
+  tags: ["dwh"]
+}
+
+SELECT
+  ${constants.generateUniqueKey(["CAST(c.customer_id AS STRING)"])} AS key,
+  CURRENT_TIMESTAMP() AS technical_date,
+  STRUCT(
+    c.technical_operation AS source_operation,
+    'customers_snapshot' AS technical_flow_identifier,
+    c.technical_date AS source_date,
+    c.technical_flow_identifier AS source_flow_identifier,
+    'UPSERT' AS technical_operation
+  ) AS technical_header,
+  ${constants.countryPredicate("c.country")} AS is_in_scope,
+  c.customer_id,
+  c.email,
+  c.first_name,
+  c.last_name,
+  c.birth_date,
+  c.country,
+  c.city,
+  c.registration_date,
+  c.updated_at,
+  c.status
+FROM ${ref(constants.SCHEMAS.RAW, "customers")} c

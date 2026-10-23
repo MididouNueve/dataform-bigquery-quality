@@ -1,0 +1,36 @@
+config {
+  type: "table",
+  database: constants.PROJECT_ID,
+  schema: constants.SCHEMAS.STAGE,
+  description: "Ventes enrichies avec infos produits et magasins",
+  tags: ["datamart"]
+}
+
+SELECT
+  -- Technical fields (from sales source)
+  s.source_technical_date,
+  s.source_technical_operation,
+  s.source_technical_flow_identifier,
+
+  -- Ventes
+  s.sale_id,
+  s.sale_year,
+  s.sale_week,
+  s.quantity,
+  s.line_amount_eur,
+
+  -- Produits
+  p.product_name,
+  p.collection,
+  p.category,
+
+  -- Magasins
+  st.store_name,
+  st.city,
+  st.region
+
+FROM ${ref(constants.SCHEMAS.STAGE, "stg_01_sales_prepared")} s
+LEFT JOIN ${ref(constants.SCHEMAS.STAGE, "stg_01_products_prepared")} p
+  ON s.product_id = p.product_id
+LEFT JOIN ${ref(constants.SCHEMAS.STAGE, "stg_01_stores_prepared")} st
+  ON s.store_id = st.store_id

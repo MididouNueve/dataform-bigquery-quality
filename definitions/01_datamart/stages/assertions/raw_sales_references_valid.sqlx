@@ -1,0 +1,35 @@
+config {
+  type: "assertion",
+  database: constants.PROJECT_ID,
+  schema: constants.SCHEMAS.STAGE,
+  description: "Clés source uniques, références existantes et montants de lignes valides",
+  tags: ["datamart"]
+}
+
+SELECT 'sales_key' AS issue, CAST(sale_id AS STRING) AS source_id
+FROM ${ref(constants.SCHEMAS.RAW, "sales")}
+GROUP BY sale_id HAVING sale_id IS NULL OR COUNT(*) > 1
+UNION ALL
+SELECT 'product_key', CAST(product_id AS STRING)
+FROM ${ref(constants.SCHEMAS.RAW, "products")}
+GROUP BY product_id HAVING product_id IS NULL OR COUNT(*) > 1
+UNION ALL
+SELECT 'store_key', CAST(store_id AS STRING)
+FROM ${ref(constants.SCHEMAS.RAW, "stores")}
+GROUP BY store_id HAVING store_id IS NULL OR COUNT(*) > 1
+UNION ALL
+SELECT 'store_reference', CAST(s.sale_id AS STRING)
+FROM ${ref(constants.SCHEMAS.RAW, "sales")} s
+LEFT JOIN ${ref(constants.SCHEMAS.RAW, "stores")} st ON s.store_id = st.store_id
+WHERE st.store_id IS NULL
+UNION ALL
+SELECT 'sale_item', CAST(s.sale_id AS STRING)
+FROM ${ref(constants.SCHEMAS.RAW, "sales")} s
+CROSS JOIN UNNEST(s.items) item
+LEFT JOIN ${ref(constants.SCHEMAS.RAW, "products")} p ON item.product_id = p.product_id
+WHERE p.product_id IS NULL OR item.quantity IS NULL OR item.quantity <= 0
+  OR item.unit_price_eur IS NULL OR item.unit_price_eur < 0
+UNION ALL
+SELECT 'empty_items', CAST(sale_id AS STRING)
+FROM ${ref(constants.SCHEMAS.RAW, "sales")}
+WHERE items IS NULL OR ARRAY_LENGTH(items) = 0

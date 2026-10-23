@@ -1,0 +1,11 @@
+{
+  "warehouse": "bigquery",
+  "defaultDatabase": "example-gcp-project",
+  "defaultSchema": "df_demo_stage",
+  "assertionSchema": "df_demo_assertions",
+  "defaultLocation": "EU",
+  "vars": {
+    "datasetPrefix": "df_demo",
+    "filterCountry": ""
+  }
+}

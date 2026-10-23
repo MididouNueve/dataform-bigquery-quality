@@ -1,0 +1,15 @@
+config {
+  type: "table",
+  database: constants.PROJECT_ID,
+  schema: constants.SCHEMAS.STAGE,
+  description: "Magasins nettoyés",
+  tags: ["datamart"]
+}
+
+SELECT
+  store_id,
+  TRIM(store_name) AS store_name,
+  TRIM(city) AS city,
+  TRIM(region) AS region,
+  UPPER(TRIM(country)) AS country
+FROM ${ref(constants.SCHEMAS.RAW, "stores")}

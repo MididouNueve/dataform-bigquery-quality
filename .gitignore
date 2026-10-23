@@ -1,0 +1,11 @@
+node_modules/
+.df-credentials.json
+*credentials*.json
+*service-account*.json
+.env
+.env.*
+!.env.example
+.DS_Store
+__pycache__/
+artifacts/
+*.zip

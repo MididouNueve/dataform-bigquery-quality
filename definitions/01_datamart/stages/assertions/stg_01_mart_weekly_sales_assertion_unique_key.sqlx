@@ -1,0 +1,14 @@
+config {
+  type: "assertion",
+  database: constants.PROJECT_ID,
+  schema: constants.SCHEMAS.STAGE,
+  description: "Vérifie l'unicité de la clé key",
+  tags: ["datamart"]
+}
+
+SELECT
+  key,
+  COUNT(*) AS nb_occurrences
+FROM ${ref(constants.SCHEMAS.STAGE, "stg_01_mart_weekly_sales")}
+GROUP BY key
+HAVING COUNT(*) > 1

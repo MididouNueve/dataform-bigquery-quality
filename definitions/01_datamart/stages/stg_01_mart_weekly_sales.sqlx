@@ -1,0 +1,57 @@
+config {
+  type: "table",
+  database: constants.PROJECT_ID,
+  schema: constants.SCHEMAS.STAGE,
+  description: "Agrégation hebdomadaire des ventes par magasin, produit et catégorie",
+  tags: ["datamart"]
+}
+
+SELECT
+  -- unique Key
+  ${constants.generateUniqueKey([
+    "CAST(sale_year AS STRING)",
+    "CAST(sale_week AS STRING)",
+    "store_name",
+    "product_name",
+    "collection",
+    "category"
+  ])} AS Key,
+
+  -- Technical Header
+  STRUCT(
+    MAX(source_technical_operation) AS source_operation,
+    '01_datamart' AS technical_flow_identifier,
+    MAX(source_technical_date) AS source_date,
+    MAX(source_technical_flow_identifier) AS source_flow_identifier,
+    CURRENT_TIMESTAMP() AS technical_date,
+    'INSERT' AS technical_operation
+  ) AS technical_header,
+
+  -- Dimensions temps
+  sale_year,
+  sale_week,
+
+  -- Dimensions magasin
+  store_name,
+  MAX(city) AS city,
+  MAX(region) AS region,
+
+  -- Dimensions produit
+  product_name,
+  collection,
+  category,
+
+  -- Métriques
+  COUNT(DISTINCT sale_id) AS nb_tickets,
+  SUM(quantity) AS total_quantity,
+  SUM(line_amount_eur) AS total_sales_eur
+
+  FROM ${ref(constants.SCHEMAS.STAGE, "stg_01_sales_joined")}
+  -- WHERE DATE(sale_timestamp) >= DATE_SUB(CURRENT_DATE(), INTERVAL 3 MONTH)
+  GROUP BY
+  sale_year,
+  sale_week,
+  store_name,
+  product_name,
+  collection,
+  category

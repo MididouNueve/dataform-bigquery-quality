@@ -1,0 +1,18 @@
+config {
+  type: "assertion",
+  database: constants.PROJECT_ID,
+  schema: constants.SCHEMAS.STAGE,
+  description: "Vérifie qu'il n'y a pas de valeurs nulles dans les colonnes clés",
+  tags: ["dwh"]
+}
+
+SELECT *
+FROM ${ref(constants.SCHEMAS.STAGE, "stg_02_customers_prepared")}
+WHERE
+  key IS NULL
+  OR customer_id IS NULL
+  OR email IS NULL
+  OR status IS NULL
+  OR country IS NULL
+  OR technical_header.source_date IS NULL
+  OR status NOT IN ('active', 'inactive', 'to_delete')

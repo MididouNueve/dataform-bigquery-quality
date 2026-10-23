@@ -1,0 +1,30 @@
+config {
+  type: "table",
+  database: constants.PROJECT_ID,
+  schema: constants.SCHEMAS.STAGE,
+  description: "Ventes préparées",
+  tags: ["datamart"],
+  dependencies: ["raw_sales_references_valid"]
+}
+
+SELECT
+  -- Technical fields (from source)
+  s.technical_date AS source_technical_date,
+  s.technical_operation AS source_technical_operation,
+  s.technical_flow_identifier AS source_technical_flow_identifier,
+
+  -- Business fields
+  s.sale_id,
+  s.store_id,
+  s.sale_timestamp,
+  s.customer_id,
+  item.product_id,
+  item.quantity,
+  item.unit_price_eur,
+  item.quantity * item.unit_price_eur AS line_amount_eur,
+  s.total_amount_eur AS ticket_total_eur,
+  EXTRACT(YEAR FROM s.sale_timestamp) AS sale_year,
+  EXTRACT(WEEK FROM s.sale_timestamp) AS sale_week
+
+FROM ${ref(constants.SCHEMAS.RAW, "sales")} s,
+UNNEST(s.items) AS item

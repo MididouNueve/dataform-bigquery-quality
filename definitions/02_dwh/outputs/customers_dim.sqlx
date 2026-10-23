@@ -1,0 +1,24 @@
+config {
+  type: "incremental",
+  database: constants.PROJECT_ID,
+  schema: constants.SCHEMAS.DWH,
+  uniqueKey: ["key"],
+  bigquery: { clusterBy: ["country", "city", "status"] },
+  description: "État courant des clients : MERGE par identifiant puis suppression explicite ; pas SCD2",
+  tags: ["dwh"],
+  dependencies: [
+    "stg_02_customers_assertions_not_null",
+    "stg_02_customers_assertions_unique_key"
+  ]
+}
+
+SELECT *
+FROM ${ref(constants.SCHEMAS.STAGE, "stg_02_customers_prepared")}
+${when(!incremental(), "WHERE status != 'to_delete' AND is_in_scope")}
+
+post_operations {
+  ${when(incremental(), `
+    DELETE FROM ${self()}
+    WHERE status = 'to_delete' OR NOT is_in_scope;
+  `)}
+}

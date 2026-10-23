@@ -1,0 +1,15 @@
+config {
+  type: "table",
+  database: constants.PROJECT_ID,
+  schema: constants.SCHEMAS.STAGE,
+  description: "Produits nettoyés",
+  tags: ["datamart"]
+}
+
+SELECT
+  product_id,
+  TRIM(product_name) AS product_name,
+  TRIM(collection) AS collection,
+  UPPER(TRIM(category)) AS category,
+  price_eur AS catalog_price_eur
+FROM ${ref(constants.SCHEMAS.RAW, "products")}
